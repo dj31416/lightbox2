@@ -11,6 +11,8 @@
   // Use local alias
   var $ = jQuery;
 
+  var lightboxCurrentTarget;
+
   var LightboxOptions = (function() {
     function LightboxOptions() {
       this.fadeDuration                = 500;
@@ -49,6 +51,7 @@
     Lightbox.prototype.enable = function() {
       var self = this;
       $('body').on('click', 'a[rel^=lightbox], area[rel^=lightbox], a[data-lightbox], area[data-lightbox]', function(event) {
+        lightboxCurrentTarget = $(event.currentTarget) ;
         self.start($(event.currentTarget));
         return false;
       });
@@ -142,6 +145,7 @@
       // Support both data-lightbox attribute and rel attribute implementations
       var dataLightboxValue = $link.attr('data-lightbox');
       var $links;
+console.log("start");
 
       if (dataLightboxValue) {
         $links = $($link.prop("tagName") + '[data-lightbox="' + dataLightboxValue + '"]');
@@ -229,6 +233,15 @@
         }
         self.sizeContainer($image.width(), $image.height());
       };
+      //kevin修正 rotate之後 lightbox還是舊照片 //放在這裡會拖慢 lightbox 速度 因為之前是有開過的 就會讀已經建立好的檔案 現在等於是全部都重讀 
+      //有個想法 : 應該是後台的lightbox才需要 前台不用加參數 
+      //修正套用到其他平台 如果還沒有帶參數要用 ? 不是 & 
+      
+      if(this.album[imageNumber].link.indexOf("?")<0){
+          this.album[imageNumber].link = this.album[imageNumber].link +"?"+Math.random();
+        }else{
+          this.album[imageNumber].link = this.album[imageNumber].link +"&"+Math.random();
+        }
 
       preloader.src          = this.album[imageNumber].link;
       this.currentImageIndex = imageNumber;
